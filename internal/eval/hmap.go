@@ -7,7 +7,6 @@ import (
 	"math/big"
 	"strconv"
 
-	"github.com/dicedb/dice/internal/clientio"
 	diceerrors "github.com/dicedb/dice/internal/errors"
 	dstore "github.com/dicedb/dice/internal/store"
 )
@@ -65,27 +64,23 @@ func hashMapBuilder(keyValuePairs []string, currentHashMap HashMap) (HashMap, in
 	return hmap, numKeysNewlySet, nil
 }
 
-func getValueFromHashMap(key, field string, store *dstore.Store) (val, err []byte) {
-	var value string
-
+func getValueFromHashMap(key, field string, store *dstore.Store) (*string, error) {
 	obj := store.Get(key)
-
 	if obj == nil {
-		return clientio.RespNIL, nil
+		return nil, nil
 	}
 
-	switch currentVal := obj.Value.(type) {
-	case HashMap:
-		val, present := currentVal.Get(field)
-		if !present {
-			return clientio.RespNIL, nil
-		}
-		value = *val
-	default:
-		return nil, diceerrors.NewErrWithFormattedMessage(diceerrors.WrongTypeErr)
+	hashMap, ok := obj.Value.(HashMap)
+	if !ok {
+		return nil, diceerrors.ErrWrongTypeOperation
 	}
 
-	return clientio.Encode(value, false), nil
+	val, present := hashMap.Get(field)
+	if !present {
+		return nil, nil
+	}
+
+	return val, nil
 }
 
 func (h HashMap) incrementValue(field string, increment int64) (int64, error) {
