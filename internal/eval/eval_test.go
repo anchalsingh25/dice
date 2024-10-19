@@ -2490,7 +2490,7 @@ func testEvalHGET(t *testing.T, store *dstore.Store) {
 			setup: func() {},
 			input: []string{"KEY", "field_name"},
 			migratedOutput: EvalResponse{
-				Result: nil,
+				Result: clientio.NIL,
 				Error:  nil,
 			},
 		},
@@ -2511,7 +2511,7 @@ func testEvalHGET(t *testing.T, store *dstore.Store) {
 			},
 			input: []string{"KEY_MOCK", "non_existent_key"},
 			migratedOutput: EvalResponse{
-				Result: nil,
+				Result: clientio.NIL,
 				Error:  nil,
 			},
 		},
@@ -3412,10 +3412,10 @@ func testEvalHSET(t *testing.T, store *dstore.Store) {
 				store.Put(key, obj)
 
 				// Check if the map is saved correctly in the store
-				res, err := getValueFromHashMap(key, field, store)
+				response := getValueFromHashMap(key, field, store)
 
-				assert.Assert(t, err == nil)
-				assert.DeepEqual(t, *res, mockValue)
+				assert.Assert(t, response.Error == nil)
+				assert.DeepEqual(t, response.Result, mockValue)
 			},
 			input: []string{
 				"KEY_MOCK",
@@ -3521,10 +3521,10 @@ func testEvalHMSET(t *testing.T, store *dstore.Store) {
 				store.Put(key, obj)
 
 				// Check if the map is saved correctly in the store
-				res, err := getValueFromHashMap(key, field, store)
+				response := getValueFromHashMap(key, field, store)
 
-				assert.Assert(t, err == nil)
-				assert.DeepEqual(t, *res, mockValue)
+				assert.Assert(t, response.Error == nil)
+				assert.DeepEqual(t, response.Result, mockValue)
 			},
 			input: []string{
 				"KEY_MOCK",
