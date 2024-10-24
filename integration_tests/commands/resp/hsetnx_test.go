@@ -1,9 +1,9 @@
-package async
+package resp
 
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"gotest.tools/v3/assert"
 )
 
 func TestHSETNX(t *testing.T) {
@@ -32,7 +32,7 @@ func TestHSETNX(t *testing.T) {
 	for _, tc := range testCases {
 		for i, cmd := range tc.commands {
 			result := FireCommand(conn, cmd)
-			assert.Equal(t, tc.expected[i], result)
+			assert.DeepEqual(t, tc.expected[i], result)
 		}
 	}
 }
