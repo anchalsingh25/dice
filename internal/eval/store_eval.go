@@ -1501,7 +1501,7 @@ func evalHINCRBY(args []string, store *dstore.Store) *EvalResponse {
 	if err != nil {
 		return &EvalResponse{
 			Result: nil,
-			Error:  err,
+			Error:  diceerrors.ErrGeneral(err.Error()),
 		}
 	}
 
@@ -2846,7 +2846,7 @@ func evalJSONARRINSERT(args []string, store *dstore.Store) *EvalResponse {
 	if err != nil {
 		return &EvalResponse{
 			Result: nil,
-			Error:  err,
+			Error:  diceerrors.ErrGeneral(err.Error()),
 		}
 	}
 
