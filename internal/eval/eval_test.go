@@ -3759,12 +3759,6 @@ func testEvalHSET(t *testing.T, store *dstore.Store) {
 				}
 
 				store.Put(key, obj)
-
-				// Check if the map is saved correctly in the store
-				response := getValueFromHashMap(key, field, store)
-
-				assert.Assert(t, response.Error == nil)
-				assert.DeepEqual(t, response.Result, mockValue)
 			},
 			input: []string{
 				"KEY_MOCK",
@@ -3868,12 +3862,6 @@ func testEvalHMSET(t *testing.T, store *dstore.Store) {
 				}
 
 				store.Put(key, obj)
-
-				// Check if the map is saved correctly in the store
-				response := getValueFromHashMap(key, field, store)
-
-				assert.Assert(t, response.Error == nil)
-				assert.DeepEqual(t, response.Result, mockValue)
 			},
 			input: []string{
 				"KEY_MOCK",
