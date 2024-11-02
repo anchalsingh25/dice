@@ -79,7 +79,7 @@ const (
 	CmdZRank         = "ZRANK"
 	CmdZCount        = "ZCOUNT"
 	CmdZRem          = "ZREM"
- 	CmdZCard         = "ZCARD"
+	CmdZCard         = "ZCARD"
 	CmdPFAdd         = "PFADD"
 	CmdPFCount       = "PFCOUNT"
 	CmdPFMerge       = "PFMERGE"
@@ -107,12 +107,12 @@ const (
 	CmdCMSInitByProb = "CMS.INITBYPROB"
 	CmdCMSMerge      = "CMS.MERGE"
 	CmdCMSIncrBy     = "CMS.INCRBY"
-	CmdHset        = "HSET"
-	CmdHget        = "HGET"
-	CmdHsetnx      = "HSETNX"
-	CmdHdel        = "HDEL"
-	CmdHmset       = "HMSET"
-	CmdHmget       = "HMGET"
+	CmdHSet          = "HSET"
+	CmdHGet          = "HGET"
+	CmdHSetnx        = "HSETNX"
+	CmdHDel          = "HDEL"
+	CmdHMSet         = "HMSET"
+	CmdHMGet         = "HMGET"
 )
 
 type CmdMeta struct {
@@ -264,22 +264,22 @@ var CommandsMeta = map[string]CmdMeta{
 	CmdCMSMerge: {
 		CmdType: SingleShard,
 	},
-	CmdHset: {
+	CmdHSet: {
 		CmdType: SingleShard,
 	},
-	CmdHget: {
+	CmdHGet: {
 		CmdType: SingleShard,
 	},
-	CmdHsetnx: {
+	CmdHSetnx: {
 		CmdType: SingleShard,
 	},
-	CmdHdel: {
+	CmdHDel: {
 		CmdType: SingleShard,
 	},
-	CmdHmset: {
+	CmdHMSet: {
 		CmdType: SingleShard,
 	},
-	CmdHmget: {
+	CmdHMGet: {
 		CmdType: SingleShard,
 	},
 
