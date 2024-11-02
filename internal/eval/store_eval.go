@@ -1501,7 +1501,7 @@ func evalHINCRBY(args []string, store *dstore.Store) *EvalResponse {
 	if err != nil {
 		return &EvalResponse{
 			Result: nil,
-			Error:  diceerrors.ErrGeneral(err.Error()),
+			Error:  err,
 		}
 	}
 
