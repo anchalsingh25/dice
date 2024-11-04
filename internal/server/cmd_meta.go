@@ -395,7 +395,6 @@ func init() {
 	WorkerCmdsMeta["CMS.MERGE"] = cmsMergeCmdMeta
 	WorkerCmdsMeta["GETEX"] = getexCmdMeta
 	WorkerCmdsMeta["GETDEL"] = getdelCmdMeta
-
 	WorkerCmdsMeta["HSET"] = hsetCmdMeta
 	WorkerCmdsMeta["HGET"] = hgetCmdMeta
 	WorkerCmdsMeta["HSETNX"] = hsetnxCmdMeta
