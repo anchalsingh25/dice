@@ -32,6 +32,10 @@ const (
 	// Watch represents a command that is used to monitor changes or events.
 	// This type of command listens for changes on specific keys or resources and responds accordingly.
 	Watch
+
+	// Unwatch represents a command that is used to stop monitoring changes or events.
+	// This type of command stops listening for changes on specific keys or resources.
+	Unwatch
 )
 
 // Global commands
@@ -49,6 +53,8 @@ const (
 	CmdSet           = "SET"
 	CmdGet           = "GET"
 	CmdGetSet        = "GETSET"
+	CmdGetEx         = "GETEX"
+	CmdGetDel        = "GETDEL"
 	CmdJSONArrAppend = "JSON.ARRAPPEND"
 	CmdJSONArrLen    = "JSON.ARRLEN"
 	CmdJSONArrPop    = "JSON.ARRPOP"
@@ -69,6 +75,7 @@ const (
 // Watch commands
 const (
 	CmdGetWatch      = "GET.WATCH"
+	CmdGetUnWatch    = "GET.UNWATCH"
 	CmdZRangeWatch   = "ZRANGE.WATCH"
 	CmdHExists       = "HEXISTS"
 	CmdHKeys         = "HKEYS"
@@ -172,6 +179,12 @@ var CommandsMeta = map[string]CmdMeta{
 		CmdType: SingleShard,
 	},
 	CmdGetSet: {
+		CmdType: SingleShard,
+	},
+	CmdGetEx: {
+		CmdType: SingleShard,
+	},
+	CmdGetDel: {
 		CmdType: SingleShard,
 	},
 	CmdHExists: {
@@ -317,6 +330,11 @@ var CommandsMeta = map[string]CmdMeta{
 	},
 	CmdZRangeWatch: {
 		CmdType: Watch,
+	},
+
+	// Unwatch commands
+	CmdGetUnWatch: {
+		CmdType: Unwatch,
 	},
 
 	// Sorted set commands

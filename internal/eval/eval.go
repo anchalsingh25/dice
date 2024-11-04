@@ -204,67 +204,6 @@ func evalDBSIZE(args []string, store *dstore.Store) []byte {
 	return clientio.Encode(store.GetDBSize(), false)
 }
 
-// evalGETDEL returns the value for the queried key in args
-// The key should be the only param in args
-// The RESP value of the key is encoded and then returned
-// In evalGETDEL  If the key exists, it will be deleted before its value is returned.
-// evalGETDEL returns response.RespNIL if key is expired or it does not exist
-func evalGETDEL(args []string, store *dstore.Store) []byte {
-	if len(args) != 1 {
-		return diceerrors.NewErrArity("GETDEL")
-	}
-
-	key := args[0]
-
-	// getting the key based on previous touch value
-	obj := store.GetNoTouch(key)
-
-	// if key does not exist, return RESP encoded nil
-	if obj == nil {
-		return clientio.RespNIL
-	}
-
-	// If the object exists, check if it is a Set object.
-	if err := object.AssertType(obj.TypeEncoding, object.ObjTypeSet); err == nil {
-		return diceerrors.NewErrWithFormattedMessage(diceerrors.WrongTypeErr)
-	}
-
-	// If the object exists, check if it is a JSON object.
-	if err := object.AssertType(obj.TypeEncoding, object.ObjTypeJSON); err == nil {
-		return diceerrors.NewErrWithFormattedMessage(diceerrors.WrongTypeErr)
-	}
-
-	// Get the key from the hash table
-	objVal := store.GetDel(key)
-
-	// Decode and return the value based on its encoding
-	switch _, oEnc := object.ExtractTypeEncoding(objVal); oEnc {
-	case object.ObjEncodingInt:
-		// Value is stored as an int64, so use type assertion
-		if val, ok := objVal.Value.(int64); ok {
-			return clientio.Encode(val, false)
-		}
-		return diceerrors.NewErrWithFormattedMessage("expected int64 but got another type: %s", objVal.Value)
-
-	case object.ObjEncodingEmbStr, object.ObjEncodingRaw:
-		// Value is stored as a string, use type assertion
-		if val, ok := objVal.Value.(string); ok {
-			return clientio.Encode(val, false)
-		}
-		return diceerrors.NewErrWithMessage("expected string but got another type")
-
-	case object.ObjEncodingByteArray:
-		// Value is stored as a bytearray, use type assertion
-		if val, ok := objVal.Value.(*ByteArray); ok {
-			return clientio.Encode(string(val.data), false)
-		}
-		return diceerrors.NewErrWithMessage(diceerrors.WrongTypeErr)
-
-	default:
-		return diceerrors.NewErrWithMessage(diceerrors.WrongTypeErr)
-	}
-}
-
 // evalJSONDEBUG reports value's memory usage in bytes
 // Returns arity error if subcommand is missing
 // Supports only two subcommand as of now - HELP and MEMORY
@@ -2101,6 +2040,98 @@ func evalGETEX(args []string, store *dstore.Store) []byte {
 
 	// return the RESP encoded value
 	return clientio.Encode(obj.Value, false)
+}
+
+// evalHSET sets the specified fields to their
+// respective values in a hashmap stored at key
+//
+// This command overwrites the values of specified
+// fields that exist in the hash.
+//
+// If key doesn't exist, a new key holding a hash is created.
+//
+// Usage: HSET key field value [field value ...]
+func evalHSET(args []string, store *dstore.Store) []byte {
+	if len(args) < 3 {
+		return diceerrors.NewErrArity("HSET")
+	}
+
+	numKeys, err := insertInHashMap(args, store)
+	if err != nil {
+		return err
+	}
+
+	return clientio.Encode(numKeys, false)
+}
+
+// evalHMSET sets the specified fields to their
+// respective values in a hashmap stored at key
+//
+// This command overwrites the values of specified
+// fields that exist in the hash.
+//
+// If key doesn't exist, a new key holding a hash is created.
+//
+// Usage: HMSET key field value [field value ...]
+func evalHMSET(args []string, store *dstore.Store) []byte {
+	if len(args) < 3 {
+		return diceerrors.NewErrArity("HMSET")
+	}
+
+	_, err := insertInHashMap(args, store)
+	if err != nil {
+		return err
+	}
+
+	return clientio.RespOK
+}
+
+// helper function to insert key value in hashmap associated with the given hash
+func insertInHashMap(args []string, store *dstore.Store) (numKeys int64, err2 []byte) {
+	key := args[0]
+
+	obj := store.Get(key)
+
+	var hashMap HashMap
+
+	if obj != nil {
+		if err := object.AssertTypeAndEncoding(obj.TypeEncoding, object.ObjTypeHashMap, object.ObjEncodingHashMap); err != nil {
+			return 0, diceerrors.NewErrWithMessage(diceerrors.WrongTypeErr)
+		}
+		hashMap = obj.Value.(HashMap)
+	}
+
+	keyValuePairs := args[1:]
+	hashMap, numKeys, err := hashMapBuilder(keyValuePairs, hashMap)
+	if err != nil {
+		return 0, diceerrors.NewErrWithMessage(err.Error())
+	}
+
+	obj = store.NewObj(hashMap, -1, object.ObjTypeHashMap, object.ObjEncodingHashMap)
+
+	store.Put(key, obj)
+
+	return numKeys, nil
+}
+
+func evalHSETNX(args []string, store *dstore.Store) []byte {
+	if len(args) != 3 {
+		return diceerrors.NewErrArity("HSETNX")
+	}
+
+	key := args[0]
+	hmKey := args[1]
+
+	val, errWithMessage := getValueFromHashMap(key, hmKey, store)
+	if errWithMessage != nil {
+		return errWithMessage
+	}
+	if !bytes.Equal(val, clientio.RespNIL) { // hmKey is already present in hash map
+		return clientio.RespZero
+	}
+
+	evalHSET(args, store)
+	return clientio.RespOne
 }
 
 func evalHGETALL(args []string, store *dstore.Store) []byte {

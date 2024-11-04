@@ -279,6 +279,14 @@ var (
 		Cmd:     "CMS.MERGE",
 		CmdType: SingleShard,
 	}
+	getexCmdMeta = CmdsMeta{
+		Cmd:     "GETEX",
+		CmdType: SingleShard,
+	}
+	getdelCmdMeta = CmdsMeta{
+		Cmd:     "GETDEL",
+		CmdType: SingleShard,
+	}
 	hsetCmdMeta = CmdsMeta{
 		Cmd:     "HSET",
 		CmdType: SingleShard,
@@ -385,6 +393,9 @@ func init() {
 	WorkerCmdsMeta["CMS.INCRBY"] = cmsIncrByCmdMeta
 	WorkerCmdsMeta["CMS.QUERY"] = cmsQueryCmdMeta
 	WorkerCmdsMeta["CMS.MERGE"] = cmsMergeCmdMeta
+	WorkerCmdsMeta["GETEX"] = getexCmdMeta
+	WorkerCmdsMeta["GETDEL"] = getdelCmdMeta
+
 	WorkerCmdsMeta["HSET"] = hsetCmdMeta
 	WorkerCmdsMeta["HGET"] = hgetCmdMeta
 	WorkerCmdsMeta["HSETNX"] = hsetnxCmdMeta
